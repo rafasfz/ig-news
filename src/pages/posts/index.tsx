@@ -48,8 +48,6 @@ export const getStaticProps: GetStaticProps = async () => {
     pageSize: 100,
   });
 
-  console.log(response.results);
-
   const posts = response.results.map(post => {
     return {
       slug: post.uid,
