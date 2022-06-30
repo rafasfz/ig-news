@@ -1,11 +1,23 @@
 import Head from 'next/head';
 import * as prismic from '@prismicio/client';
+import { GetStaticProps } from 'next/types';
+import { RichText } from 'prismic-dom';
 
 import { client } from '../../services/prismic';
 import styles from './styles.module.scss';
-import { GetStaticProps } from 'next/types';
 
-export default function Posts() {
+type Post = {
+  slug: string;
+  title: string;
+  excerpt: string;
+  updatedAt: string;
+}
+
+interface PostsProps {
+  posts: Post[];
+}
+
+export default function Posts({ posts }: PostsProps) {
   return (
     <>
       <Head>
@@ -14,21 +26,13 @@ export default function Posts() {
 
       <main className={styles.container}>
         <div className={styles.posts}>
-          <a href="">
-            <time>12 de março de 2021</time>
-            <strong>Creating a Monorepo with Lerna & Yarn Workspaces</strong>
-            <p>In this guide, you will learn how to create a Monorepo to manage multiple packages with a shared build, test, and release process.</p>
+          {posts.map((post) => (
+            <a href="#" key={post.slug}>
+            <time>{post.updatedAt}</time>
+            <strong>{post.title}</strong>
+            <p>{post.excerpt}</p>
           </a>
-          <a href="">
-            <time>12 de março de 2021</time>
-            <strong>Creating a Monorepo with Lerna & Yarn Workspaces</strong>
-            <p>In this guide, you will learn how to create a Monorepo to manage multiple packages with a shared build, test, and release process.</p>
-          </a>
-          <a href="">
-            <time>12 de março de 2021</time>
-            <strong>Creating a Monorepo with Lerna & Yarn Workspaces</strong>
-            <p>In this guide, you will learn how to create a Monorepo to manage multiple packages with a shared build, test, and release process.</p>
-          </a>
+          ))}
         </div>
       </main>
     </>
@@ -40,11 +44,29 @@ export const getStaticProps: GetStaticProps = async () => {
     predicates: [
       prismic.predicate.at('document.type', 'publication'),
     ],
-    fetch: ['publication.title', 'publication.content'],
+    fetch: ['publication.Title', 'publication.Content'],
     pageSize: 100,
   });
 
+  console.log(response.results);
+
+  const posts = response.results.map(post => {
+    return {
+      slug: post.uid,
+      title: post.data.Title,
+      excerpt: post.data.Content?.find(text => text.type === 'paragraph')?.text ?? '',
+      updatedAt: new Date(post.last_publication_date).toLocaleDateString('pt-BR', {
+        day: '2-digit',
+        month: 'long',
+        year: 'numeric',
+      })
+    };
+  });
+
+
   return {
-    props: {}
+    props: {
+      posts,
+    }
   };
 };
