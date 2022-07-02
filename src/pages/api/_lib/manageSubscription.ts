@@ -7,7 +7,7 @@ export async function saveSubscription (
     customerId: string,
     createAction: boolean = false,
 ) {
-  const userRef = fauna.query(
+  const userRef = await fauna.query(
     q.Select(
       'ref',
       q.Get(
@@ -49,6 +49,6 @@ export async function saveSubscription (
         ),
         { data: subscriptionData }
       )
-    )
+    );
   }
 }
