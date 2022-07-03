@@ -40,9 +40,7 @@ export const getServerSideProps: GetServerSideProps = async ({ req, params }) =>
   const session = await getSession({ req });
   const { slug } = params;
 
-  console.log(session.activeSubscription);
-
-  if (!session.activeSubscription) {
+  if (!session?.activeSubscription) {
     return {
       redirect: {
         destination: '/',
@@ -52,8 +50,6 @@ export const getServerSideProps: GetServerSideProps = async ({ req, params }) =>
   }
 
   const response = await client.getByUID('publication', String(slug), {});
-
-  console.log(response.last_publication_date);
 
   const post = {
     slug,
